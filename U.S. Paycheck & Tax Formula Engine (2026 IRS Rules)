@@ -1,0 +1,95 @@
+# 🇺🇸 U.S. Paycheck & Tax Formula Engine (2026 IRS Rules)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue)](https://www.typescriptlang.org/)
+[![Live Demo](https://img.shields.io/badge/Live%20Engine-PayCalc.online-emerald)](https://paycalc.online)
+
+An open-source, zero-dependency TypeScript implementation of the 2026 U.S. Federal progressive tax brackets, FICA statutory caps, standard deductions, and 50-state tax rules. 
+
+> **Live Interactive Calculator:** Try the production engine at **[PayCalc.online (50-State Take-Home Pay Estimator)](https://paycalc.online)**.
+
+---
+
+## 📐 Mathematical Formulations
+
+### 1. Progressive Federal Income Tax
+
+Federal income tax withholding is calculated across progressive income brackets after applying filing-status standard deductions ($S_d$):
+
+$$\text{Taxable Income } (I) = \max(0, \text{Gross Pay} - S_d)$$
+
+For $n$ tax brackets defined by lower bounds $B_i$, upper bounds $B_{i+1}$, and marginal rates $r_i$:
+
+$$\text{Federal Tax} = \sum_{i=1}^{n} \max\left(0, \min(I, B_{i+1}) - B_i\right) \times r_i$$
+
+### 2. FICA Withholding & Statutory Caps (2026)
+
+* **Social Security Tax:** $6.2\%$ applied up to the statutory wage cap of **$176,100**:
+  $$\text{Social Security} = \min(\text{Gross Pay}, 176100) \times 0.062$$
+* **Medicare Tax:** $1.45\%$ on all earnings + $0.9\%$ additional Medicare tax on individual earnings exceeding $200,000.
+
+### 3. Net-to-Gross Reverse Calculation (Binary Search)
+
+To calculate the required gross pay $G$ given a target net take-home pay $N_{\text{target}}$, the engine uses a monotonic binary search solver:
+
+$$f(G) = \text{Net Pay}$$
+
+Find $G \in [N_{\text{target}}, 2.5 \times N_{\text{target}}]$ such that:
+
+$$\vert{}f(G) - N_{\text{target}}\vert{} \le 0.01$$
+
+---
+
+## 🚀 Quickstart & Usage
+
+### Installation
+Clone the repository or copy `src/taxEngine.ts` directly into your project:
+
+```bash
+git clone [https://github.com/YOUR_USERNAME/us-paycheck-tax-formulas-2026.git](https://github.com/YOUR_USERNAME/us-paycheck-tax-formulas-2026.git)
+```
+
+### TypeScript Example
+
+```typescript
+import { calculatePaycheck, calculateGrossFromNet } from './taxEngine';
+
+// 1. Forward Calculation: $75,000 in Texas (Single)
+const result = calculatePaycheck({
+  grossSalary: 75000,
+  payFrequency: 'biweekly', // 26 pay periods
+  filingStatus: 'single',
+  state: 'TX'
+});
+
+console.log(`Net Bi-Weekly Pay: $${result.netPayPerPeriod.toFixed(2)}`);
+console.log(`Federal Tax: $${result.federalTaxAnnual.toFixed(2)}`);
+console.log(`FICA Total: $${result.ficaAnnual.toFixed(2)}`);
+
+// 2. Reverse Calculation: Clear $5,000/mo net in Texas
+const requiredGross = calculateGrossFromNet(60000, 'TX');
+console.log(`Required Annual Gross: $${requiredGross.toFixed(2)}`);
+```
+
+---
+
+## 🏛️ State Tax Support Matrix
+
+| State Category | States Included | State Tax Logic |
+| :--- | :--- | :--- |
+| **Zero Income Tax** | TX, FL, NV, WA, TN, WY, SD, AK, NH | $0.00 State Tax ($0\%$) |
+| **Flat Income Tax** | PA, NC, CO, IN, IL, UT, KY, GA, AZ | Fixed % across all taxable income |
+| **Progressive Tax** | CA, NY, NJ, MA, MN, OR, etc. | Multi-tier progressive bracket evaluation |
+
+---
+
+## 🔗 Live Application
+
+The complete production web app featuring interactive state selectors, W-4 allowance sliders, and instantaneous UI updates is hosted at:
+👉 **[https://paycalc.online](https://paycalc.online)**
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
