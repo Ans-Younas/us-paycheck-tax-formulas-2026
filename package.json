@@ -1,0 +1,13 @@
+{
+  "name": "us-paycheck-tax-formulas-2026",
+  "version": "1.0.0",
+  "description": "2026 U.S. Federal & 50-State Tax Engine powered by paycalc.online",
+  "main": "src/taxEngine.ts",
+  "scripts": {
+    "test": "node -e \"console.log(require('./src/taxEngine').calculatePaycheck({grossSalary:75000,payFrequency:'biweekly',filingStatus:'single',state:'TX'}))\""
+  },
+  "keywords": ["tax-calculator", "paycheck", "fica", "2026-tax-brackets", "paycalc"],
+  "author": "PayCalc",
+  "license": "MIT",
+  "homepage": "https://paycalc.online"
+}
